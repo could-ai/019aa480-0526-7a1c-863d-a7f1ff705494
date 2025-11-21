@@ -7,114 +7,347 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'TikTok Style Gallery',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        colorScheme: const ColorScheme.dark(
+          primary: Colors.pinkAccent,
+          secondary: Colors.white,
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const GalleryHomeScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+// Model Data Sederhana
+class MediaItem {
+  final String id;
+  final String type; // 'image' or 'video'
+  final String url;
+  final String username;
+  final String description;
+  final int likes;
+  final int comments;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  MediaItem({
+    required this.id,
+    required this.type,
+    required this.url,
+    required this.username,
+    required this.description,
+    required this.likes,
+    required this.comments,
+  });
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class GalleryHomeScreen extends StatefulWidget {
+  const GalleryHomeScreen({super.key});
 
-  void _incrementCounter() {
+  @override
+  State<GalleryHomeScreen> createState() => _GalleryHomeScreenState();
+}
+
+class _GalleryHomeScreenState extends State<GalleryHomeScreen> {
+  // Filter aktif: 'all', 'image', 'video'
+  String _currentFilter = 'all';
+  final PageController _pageController = PageController();
+
+  // Dummy Data
+  final List<MediaItem> _allMedia = [
+    MediaItem(
+      id: '1',
+      type: 'image',
+      url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      username: '@nature_lover',
+      description: 'Pemandangan indah pegunungan di pagi hari 🏔️ #nature #view',
+      likes: 1200,
+      comments: 45,
+    ),
+    MediaItem(
+      id: '2',
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      username: '@travel_vlog',
+      description: 'Perjalanan menuju puncak! Klik untuk menonton video lengkapnya 🎥',
+      likes: 3500,
+      comments: 120,
+    ),
+    MediaItem(
+      id: '3',
+      type: 'image',
+      url: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      username: '@doggo_daily',
+      description: 'Anjing lucu sedang bermain di taman 🐶',
+      likes: 5000,
+      comments: 300,
+    ),
+    MediaItem(
+      id: '4',
+      type: 'video',
+      url: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      username: '@tech_guru',
+      description: 'Review kamera terbaru, hasilnya tajam banget! 📸',
+      likes: 890,
+      comments: 22,
+    ),
+    MediaItem(
+      id: '5',
+      type: 'image',
+      url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      username: '@forest_life',
+      description: 'Suasana hutan yang menenangkan jiwa 🌲',
+      likes: 2100,
+      comments: 88,
+    ),
+  ];
+
+  // Mendapatkan list berdasarkan filter
+  List<MediaItem> get _filteredMedia {
+    if (_currentFilter == 'all') {
+      return _allMedia;
+    }
+    return _allMedia.where((item) => item.type == _currentFilter).toList();
+  }
+
+  void _changeFilter(String filter) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _currentFilter = filter;
+      // Reset ke halaman pertama saat filter berubah
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(0);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    final displayList = _filteredMedia;
+
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+      body: Stack(
+        children: [
+          // Layer 1: Content Scrolling (PageView)
+          displayList.isEmpty
+              ? const Center(child: Text("Tidak ada konten"))
+              : PageView.builder(
+                  controller: _pageController,
+                  scrollDirection: Axis.vertical,
+                  itemCount: displayList.length,
+                  itemBuilder: (context, index) {
+                    return ContentPage(item: displayList[index]);
+                  },
+                ),
+
+          // Layer 2: Top Navigation / Filter Bar
+          Positioned(
+            top: 50,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildFilterButton('Semua', 'all'),
+                const SizedBox(width: 15),
+                Container(width: 1, height: 15, color: Colors.white54),
+                const SizedBox(width: 15),
+                _buildFilterButton('Gambar', 'image'),
+                const SizedBox(width: 15),
+                Container(width: 1, height: 15, color: Colors.white54),
+                const SizedBox(width: 15),
+                _buildFilterButton('Video', 'video'),
+              ],
+            ),
+          ),
+        ],
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
-          ],
+    );
+  }
+
+  Widget _buildFilterButton(String title, String filterKey) {
+    final bool isSelected = _currentFilter == filterKey;
+    return GestureDetector(
+      onTap: () => _changeFilter(filterKey),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white60,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 16,
+              shadows: const [
+                Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black54),
+              ],
+            ),
+          ),
+          if (isSelected)
+            Container(
+              margin: const EdgeInsets.only(top: 4),
+              height: 2,
+              width: 20,
+              color: Colors.white,
+            )
+        ],
+      ),
+    );
+  }
+}
+
+class ContentPage extends StatelessWidget {
+  final MediaItem item;
+
+  const ContentPage({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // 1. Background Image / Video Placeholder
+        Image.network(
+          item.url,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+                color: Colors.grey,
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) => Container(
+            color: Colors.grey[900],
+            child: const Center(child: Icon(Icons.broken_image, color: Colors.white)),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+
+        // 2. Video Overlay (If it's a video)
+        if (item.type == 'video')
+          Center(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(50),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: const Icon(
+                Icons.play_arrow_rounded,
+                size: 50,
+                color: Colors.white,
+              ),
+            ),
+          ),
+
+        // 3. Right Side Action Buttons
+        Positioned(
+          right: 10,
+          bottom: 100,
+          child: Column(
+            children: [
+              _buildProfileImage(),
+              const SizedBox(height: 20),
+              _buildActionButton(Icons.favorite, '${item.likes}', Colors.red),
+              const SizedBox(height: 15),
+              _buildActionButton(Icons.comment, '${item.comments}', Colors.white),
+              const SizedBox(height: 15),
+              _buildActionButton(Icons.share, 'Share', Colors.white),
+            ],
+          ),
+        ),
+
+        // 4. Bottom Info (Username & Description)
+        Positioned(
+          left: 15,
+          right: 80, // Give space for right buttons
+          bottom: 20,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.username,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                item.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 10),
+              if (item.type == 'video')
+                Row(
+                  children: const [
+                    Icon(Icons.music_note, size: 15, color: Colors.white),
+                    SizedBox(width: 5),
+                    Text('Original Sound - Music Artist', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfileImage() {
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: Colors.white, width: 1),
+          ),
+          child: const CircleAvatar(
+            radius: 22,
+            backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=3'),
+          ),
+        ),
+        const Positioned(
+          bottom: 0,
+          child: CircleAvatar(
+            radius: 10,
+            backgroundColor: Colors.pinkAccent,
+            child: Icon(Icons.add, size: 15, color: Colors.white),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildActionButton(IconData icon, String label, Color color) {
+    return Column(
+      children: [
+        Icon(icon, size: 35, color: color),
+        const SizedBox(height: 5),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
