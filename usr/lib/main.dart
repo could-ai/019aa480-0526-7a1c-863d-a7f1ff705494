@@ -31,8 +31,6 @@ class MediaItem {
   final String url;
   final String username;
   final String description;
-  final int likes;
-  final int comments;
 
   MediaItem({
     required this.id,
@@ -40,8 +38,6 @@ class MediaItem {
     required this.url,
     required this.username,
     required this.description,
-    required this.likes,
-    required this.comments,
   });
 }
 
@@ -65,8 +61,6 @@ class _GalleryHomeScreenState extends State<GalleryHomeScreen> {
       url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       username: '@nature_lover',
       description: 'Pemandangan indah pegunungan di pagi hari 🏔️ #nature #view',
-      likes: 1200,
-      comments: 45,
     ),
     MediaItem(
       id: '2',
@@ -74,8 +68,6 @@ class _GalleryHomeScreenState extends State<GalleryHomeScreen> {
       url: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       username: '@travel_vlog',
       description: 'Perjalanan menuju puncak! Klik untuk menonton video lengkapnya 🎥',
-      likes: 3500,
-      comments: 120,
     ),
     MediaItem(
       id: '3',
@@ -83,8 +75,6 @@ class _GalleryHomeScreenState extends State<GalleryHomeScreen> {
       url: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       username: '@doggo_daily',
       description: 'Anjing lucu sedang bermain di taman 🐶',
-      likes: 5000,
-      comments: 300,
     ),
     MediaItem(
       id: '4',
@@ -92,8 +82,6 @@ class _GalleryHomeScreenState extends State<GalleryHomeScreen> {
       url: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       username: '@tech_guru',
       description: 'Review kamera terbaru, hasilnya tajam banget! 📸',
-      likes: 890,
-      comments: 22,
     ),
     MediaItem(
       id: '5',
@@ -101,8 +89,6 @@ class _GalleryHomeScreenState extends State<GalleryHomeScreen> {
       url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
       username: '@forest_life',
       description: 'Suasana hutan yang menenangkan jiwa 🌲',
-      likes: 2100,
-      comments: 88,
     ),
   ];
 
@@ -248,27 +234,10 @@ class ContentPage extends StatelessWidget {
             ),
           ),
 
-        // 3. Right Side Action Buttons
-        Positioned(
-          right: 10,
-          bottom: 100,
-          child: Column(
-            children: [
-              _buildProfileImage(),
-              const SizedBox(height: 20),
-              _buildActionButton(Icons.favorite, '${item.likes}', Colors.red),
-              const SizedBox(height: 15),
-              _buildActionButton(Icons.comment, '${item.comments}', Colors.white),
-              const SizedBox(height: 15),
-              _buildActionButton(Icons.share, 'Share', Colors.white),
-            ],
-          ),
-        ),
-
-        // 4. Bottom Info (Username & Description)
+        // 3. Bottom Info (Username & Description)
         Positioned(
           left: 15,
-          right: 80, // Give space for right buttons
+          right: 15, 
           bottom: 20,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,6 +248,9 @@ class ContentPage extends StatelessWidget {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
+                  shadows: [
+                    Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black54),
+                  ],
                 ),
               ),
               const SizedBox(height: 8),
@@ -289,6 +261,9 @@ class ContentPage extends StatelessWidget {
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 14,
+                  shadows: [
+                    Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black54),
+                  ],
                 ),
               ),
               const SizedBox(height: 10),
@@ -297,54 +272,19 @@ class ContentPage extends StatelessWidget {
                   children: const [
                     Icon(Icons.music_note, size: 15, color: Colors.white),
                     SizedBox(width: 5),
-                    Text('Original Sound - Music Artist', style: TextStyle(fontSize: 12)),
+                    Text(
+                      'Original Sound - Music Artist', 
+                      style: TextStyle(
+                        fontSize: 12, 
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(offset: Offset(0, 1), blurRadius: 2, color: Colors.black54),
+                        ],
+                      )
+                    ),
                   ],
                 ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProfileImage() {
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 1),
-          ),
-          child: const CircleAvatar(
-            radius: 22,
-            backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=3'),
-          ),
-        ),
-        const Positioned(
-          bottom: 0,
-          child: CircleAvatar(
-            radius: 10,
-            backgroundColor: Colors.pinkAccent,
-            child: Icon(Icons.add, size: 15, color: Colors.white),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _buildActionButton(IconData icon, String label, Color color) {
-    return Column(
-      children: [
-        Icon(icon, size: 35, color: color),
-        const SizedBox(height: 5),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ],
